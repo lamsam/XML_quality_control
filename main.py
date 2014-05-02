@@ -74,5 +74,3 @@ for file in dir:
     print "обработано ",q, 'файлов'
     fn = time.time()
     print "Файл обработан за ",fn - st
-    break
-
