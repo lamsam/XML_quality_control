@@ -19,20 +19,13 @@ def fileCorrector (filename):
     f = open(filename)
     text = f.read()
     f.close()
-
-    f = open(filename, 'w')
-    f.write(text.replace("oos:", "").replace("<contract schemeVersion=\"1.0\">", "<contract>")\
+    text = text.replace("oos:", "").replace("<contract schemeVersion=\"1.0\">", "<contract>")\
                                     .replace("<contractSign>", "<contract>")\
-                                    .replace("</contractSign>","</contract>"))
-    f.close()
+                                    .replace("</contractSign>","</contract>")
 
-    f = open(filename)
-    text2 = f.read()
-    f.close()
-
+    text = text.replace(text.split("<contract>", 1)[0], "<export>\n")
     f = open(filename, 'w')
-    f.write(text2.replace(text2.split("<contract>",1)[0], '<export>\n'))
-    f.close()
+    f.write(text)
 
 def extractRegion(filename):
     region = filename.split('_inc_')
