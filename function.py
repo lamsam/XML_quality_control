@@ -27,15 +27,11 @@ def fileCorrector (filename):
     f.close()
 
     f = open(filename)
-    line = f.readlines()
-    f.close()
-
-    f = open(filename)
-    text3 = f.read()
+    text2 = f.read()
     f.close()
 
     f = open(filename, 'w')
-    f.write(text3.replace(line[0], '<export>\n'))
+    f.write(text2.replace(text2.split("<contract>",1)[0], '<export>\n'))
     f.close()
 
 def extractRegion(filename):

@@ -20,7 +20,7 @@ for file in dir:
     file = path + file
     print "Корректировка файла: %s" % file
     s1 = time.time()
-    #fileCorrector(file)
+    fileCorrector(file)
     f1 = time.time()
     #print "Файл откорректирован за %.3f сек\n" % (f1 - s1)
     print ".....................................................\n"
@@ -40,7 +40,7 @@ for file in dir:
 
     print "Начало загрузки данных в графовую базу"
     print "\nФайл успешно обработан\n"
-
+    break
     # q = 0
     # i = 1
     # st = time.time()
