@@ -15,7 +15,7 @@ from classes import *
 #         print "ВНИМАНИЕ! БАЗА ДАННЫХ ПОЛНОСТЬЮ ОЧИЩЕНА! \n"
 #     return graph_db
 
-def fileCorrector (filename):
+def file_corrector (filename):
     f = open(filename)
     text = f.read()
     f.close()
@@ -50,13 +50,13 @@ def extractDate(filename):
 def ContractParse(data):
     isPrice = True
     currContract = Contract()
-    data.next()
     for event,elem in data:
         # if event == 'end' and elem.tag == 'id':
         #     currContract.id = elem.text
 
         if event == 'end' and elem.tag == 'regNum':
             currContract.RegNum = elem.text
+            continue
 
         # if event == 'end' and elem.tag == 'number':
         #     currContract.Number = elem.text
@@ -66,26 +66,27 @@ def ContractParse(data):
         #
         if event == 'end' and elem.tag == 'signDate':
             currContract.SignDate = elem.text
+            continue
         #
         # if event == 'end' and elem.tag == 'notificationNumber':
         #     currContract.NotNumber = elem.text
 
         if event == 'start' and elem.tag == 'customer':
-
             currContract.Customer = CustomerParse(data)
+            continue
 
         if event == 'start' and elem.tag == 'execution':
             currContract.Execution = ExecutionParse(data)
-
+            continue
 
 
         if event == 'end' and elem.tag == 'price' and isPrice == True:
             currContract.Price = elem.text
-
-
+            continue
 
         if (event == 'start' and elem.tag == 'products') or (event == 'start' and elem.tag == 'finances'):
             isPrice = False
+            continue
 
         # if event == 'end' and elem.tag == 'protocolDate':
         #     currContract.ProtocolDate = elem.text
@@ -97,13 +98,13 @@ def ContractParse(data):
 
         if event == 'start' and elem.tag == 'supplier':
             currContract.Supplier = SupplierParse(data)
+            continue
 
         if event == 'end' and elem.tag == 'contract':
             return currContract
 
 def CustomerParse(data):
     currCustomer = Customer()
-    data.next()
     for event,elem in data:
         if event == 'start' and elem.tag == 'customer':
             currCustomer = Customer()
@@ -112,10 +113,12 @@ def CustomerParse(data):
         #     currCustomer.RegNum = elem.text
         #
         if event == 'end' and elem.tag == 'fullName':
-             currCustomer.FullName = elem.text
+            currCustomer.FullName = elem.text
+            continue
 
         if event == 'end' and elem.tag == 'inn':
             currCustomer.inn = elem.text
+            continue
 
 
         # if event == 'end' and elem.tag == 'kpp':
@@ -130,20 +133,22 @@ CustomerParse.NoINNCustomerIndex = 1
 
 def SupplierParse(data):
     currSupplier = Supplier()
-    data.next()
     for event,elem in data:
         if event == 'start' and elem.tag == 'supplier':
             currSupplier = Supplier()
+            continue
 
         if event == 'end' and elem.tag == 'inn':
             currSupplier.inn = elem.text
+            continue
 
         #
         # if event == 'end' and elem.tag == 'kpp':
         #     currSupplier.kpp = elem.text
         #
         if event == 'end' and elem.tag == 'organizationName':
-             currSupplier.OrgName = elem.text
+            currSupplier.OrgName = elem.text
+            continue
         #
         # if event == 'end' and elem.tag == 'countryFullName':
         #     currSupplier.CountryName = elem.text
@@ -172,22 +177,26 @@ SupplierParse.NoINNSupplierIndex = 1
 
 def ProductParse(data):
     currProduct = Product()
-    data.next()
     for event,elem in data:
         if event == 'start' and elem.tag == 'product':
             currProduct = Product()
+            continue
 
         if event == 'end' and elem.tag == 'sid':
             currProduct.Sid = elem.text
+            continue
 
         if event == 'end' and elem.tag == 'name':
             currProduct.Name = elem.text
+            continue
 
         if event == 'end' and elem.tag == 'code':
             currProduct.Code = elem.text
+            continue
 
         if event == 'end' and elem.tag == 'price':
             currProduct.Price = elem.text
+            continue
 
         if event == 'end' and elem.tag == 'product':
             return currProduct
@@ -197,9 +206,11 @@ def ExecutionParse(data):
     for event,elem in data:
         if event == 'end' and elem.tag == 'month':
             currExecution.Month = elem.text
+            continue
 
         if event == 'end' and elem.tag == 'year':
             currExecution.Year = elem.text
+            continue
+
         if event == 'end' and elem.tag == 'execution':
             return currExecution
-

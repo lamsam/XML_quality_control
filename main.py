@@ -15,16 +15,15 @@ dir = os.listdir(path)
 print "Начало обработки файлов из дирректории %s\n" % path
 print "=====================================================\n"
 
-q=0
 for file in dir:
     file = path + file
     print "Корректировка файла: %s" % file
     s1 = time.time()
-    fileCorrector(file)
+    file_corrector(file)
     f1 = time.time()
     #print "Файл откорректирован за %.3f сек\n" % (f1 - s1)
     print ".....................................................\n"
-    data = iterparse(file,events=('start','end'))
+    data = iterparse(file, events=('start','end'))
     data = iter(data)
 
     event,root = data.next()
