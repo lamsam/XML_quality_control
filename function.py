@@ -1,19 +1,12 @@
 # -*- coding: utf-8 -*-
 from lxml.etree import iterparse
-#from py2neo import neo4j
+import MySQLdb
 from classes import *
 
 
-# def databaseConnect (location,clear):
-#     print "Подключение к графовой базе данных"
-#     if location == 'GDB':
-#         graph_db = neo4j.GraphDatabaseService("http://testmerge:4KmnY6jqwOHVB4lSkAdR@testmerge.sb01.stations.graphenedb.com:24789/db/data/")
-#     else:
-#         graph_db = neo4j.GraphDatabaseService("http://localhost:7474/db/data/")
-#     if clear == 'Clear':
-#         graph_db.clear()
-#         print "ВНИМАНИЕ! БАЗА ДАННЫХ ПОЛНОСТЬЮ ОЧИЩЕНА! \n"
-#     return graph_db
+def databaseConnect():
+    db = MySQLdb.connect(host="127.0.0.1", user="root", passwd="root", db="test")
+    return db
 
 def file_corrector (filename):
     f = open(filename)
