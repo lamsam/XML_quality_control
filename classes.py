@@ -15,17 +15,18 @@ class Contract:
         self.NotNumber = 'None'
         self.ProtocolDate = 'None'
         self.DocumentBase = 'None'
+        self.Region = 'None'
 
 class Customer:
     def __init__(self):
-        self.inn = 'NoCustomerINN'
+        self.inn = 'None'
         self.kpp = 'None'
         self.FullName = 'None'
         self.RegNum = 'None'
 
 class Supplier:
     def __init__(self):
-        self.inn = 'NoSupplierINN'
+        self.inn = 'None'
         self.kpp = 'None'
         self.OrgName = 'None'
         self.CountryName = 'None'

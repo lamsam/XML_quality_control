@@ -5,7 +5,8 @@ from classes import *
 
 
 def databaseConnect():
-    db = MySQLdb.connect(host="127.0.0.1", user="root", passwd="root", db="test")
+    db = MySQLdb.connect(charset='utf8',host="127.0.0.1",
+            user="root", passwd="root", db="test")
     return db
 
 def file_corrector (filename):
@@ -13,22 +14,19 @@ def file_corrector (filename):
     text = f.read()
     f.close()
     text = text.replace("oos:", "").replace("<contract schemeVersion=\"1.0\">", "<contract>")\
-                                    .replace("<contractSign>", "<contract>")\
-                                    .replace("</contractSign>","</contract>")
+                                   .replace("<contractSign>", "<contract>")\
+                                   .replace("</contractSign>","</contract>")
 
     text = text.replace(text.split("<contract>", 1)[0], "<export>\n")
     f = open(filename, 'w')
     f.write(text)
 
-def extractRegion(filename):
-    region = filename.split('_inc_')
-    region = region[0]
-    if '__' in filename:
-        region = region.split('__')
-        region = region[1]
-    else:
-        region = region.split('_',1)
-        region = region[1]
+def extract_region(filename):
+    region = filename.split('contract_')[1]
+    for i in region:
+        if i.isdigit():
+            region = region[:region.index(i) - 1]
+            break
     return region
 
 def extractDate(filename):
@@ -40,7 +38,7 @@ def extractDate(filename):
     date = startDate + '-' + finishDate
     return date
 
-def ContractParse(data):
+def ContractParse(data, region):
     isPrice = True
     currContract = Contract()
     for event,elem in data:
@@ -77,7 +75,8 @@ def ContractParse(data):
             currContract.Price = elem.text
             continue
 
-        if (event == 'start' and elem.tag == 'products') or (event == 'start' and elem.tag == 'finances'):
+        if (event == 'start' and elem.tag == 'products') or \
+                (event == 'start' and elem.tag == 'finances'):
             isPrice = False
             continue
 
@@ -91,6 +90,7 @@ def ContractParse(data):
 
         if event == 'start' and elem.tag == 'supplier':
             currContract.Supplier = SupplierParse(data)
+            currContract.Region = region
             continue
 
         if event == 'end' and elem.tag == 'contract':
@@ -102,9 +102,9 @@ def CustomerParse(data):
         if event == 'start' and elem.tag == 'customer':
             currCustomer = Customer()
 
-        # if event == 'end' and elem.tag == 'regNum':
-        #     currCustomer.RegNum = elem.text
-        #
+        if event == 'end' and elem.tag == 'regNum':
+            currCustomer.RegNum = elem.text
+
         if event == 'end' and elem.tag == 'fullName':
             currCustomer.FullName = elem.text
             continue
@@ -114,15 +114,11 @@ def CustomerParse(data):
             continue
 
 
-        # if event == 'end' and elem.tag == 'kpp':
-        #     currCustomer.kpp = elem.text
+        if event == 'end' and elem.tag == 'kpp':
+            currCustomer.kpp = elem.text
 
         if event == 'end' and elem.tag == 'customer':
-            if currCustomer.inn == 'NoCustomerINN':
-                currCustomer.inn = currCustomer.inn + "_" + str(CustomerParse.NoINNCustomerIndex)
-                CustomerParse.NoINNCustomerIndex += 1
             return currCustomer
-CustomerParse.NoINNCustomerIndex = 1
 
 def SupplierParse(data):
     currSupplier = Supplier()
@@ -146,27 +142,23 @@ def SupplierParse(data):
         # if event == 'end' and elem.tag == 'countryFullName':
         #     currSupplier.CountryName = elem.text
         #
-        # if event == 'end' and elem.tag == 'factualAddress':
-        #     currSupplier.FactAddress = elem.text.replace("\\","\\\\")
-        #
-        # if event == 'end' and elem.tag == 'lastName':
-        #     currSupplier.ContactInfo = elem.text + " "
-        #
-        # if event == 'end' and elem.tag == 'firstName':
-        #     currSupplier.ContactInfo = currSupplier.ContactInfo + elem.text + " "
-        #
-        # if event == 'end' and elem.tag == 'middleName':
-        #     currSupplier.ContactInfo = currSupplier.ContactInfo + elem.text
-        #
-        # if event == 'end' and elem.tag == 'contactPhone':
-        #     currSupplier.ContactPhone = elem.text
+        if event == 'end' and elem.tag == 'factualAddress':
+            currSupplier.FactAddress = elem.text.replace("\\","\\\\")
+
+        if event == 'end' and elem.tag == 'lastName':
+            currSupplier.ContactInfo = elem.text + " "
+
+        if event == 'end' and elem.tag == 'firstName':
+            currSupplier.ContactInfo = currSupplier.ContactInfo + elem.text + " "
+
+        if event == 'end' and elem.tag == 'middleName':
+            currSupplier.ContactInfo = currSupplier.ContactInfo + elem.text
+
+        if event == 'end' and elem.tag == 'contactPhone':
+            currSupplier.ContactPhone = elem.text
 
         if event == 'end' and elem.tag == 'supplier':
-            if currSupplier.inn == 'NoSupplierINN':
-                currSupplier.inn = currSupplier.inn + "_" + str(SupplierParse.NoINNSupplierIndex)
-                SupplierParse.NoINNSupplierIndex += 1
             return  currSupplier
-SupplierParse.NoINNSupplierIndex = 1
 
 def ProductParse(data):
     currProduct = Product()
