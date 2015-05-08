@@ -1,8 +1,9 @@
 CREATE TABLE  `T_CUSTOMER`
 (
-	`inn` bigint,
+    `id` bigint auto_increment,
+    `inn` bigint,
     `reg_num` bigint,
     `kpp` bigint,
-    `full_name` char(100),
-    primary key (`inn`)
+    `full_name` varchar(200),
+    primary key (`id`)
 );
