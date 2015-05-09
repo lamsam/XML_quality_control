@@ -4,45 +4,47 @@ from function import *
 from pyunpack import Archive
 
 def main():
-    db = databaseConnect()
-    cursor = db.cursor()
-
+    #db = databaseConnect()
+    #cursor = db.cursor()
     path = 'C:\\test\\'
     zip_dir = os.listdir(path)
-    xml_dir = os.listdir(path + 'xml\\')
+    #print zip_dir.index("contract_Sverdlovskaja_obl_2014090100_2014100100_619.xml.zip")
     print "Начало обработки файлов из дирректории %s\n" % path
     print "=====================================================\n"
-
+    len_zip = len(zip_dir) - 1
     for zip in zip_dir:
+        print 'Осталось: ', len_zip
         zip = path + zip
         print 'Распаковка архива: ', zip
-        #Archive(zip).extractall(path + 'xml\\')
-        print 'Архив распакован в папку ', path + 'xml\\'
+        Archive(zip).extractall('C:\\xml\\')
+        print 'Архив распакован в папку ', 'C:\\xml\\'
+        xml_dir = os.listdir('C:\\xml\\')
         for file in xml_dir:
-            file = path + 'xml\\' + file
-            print 'Корректировка и ана6лиз файла: ', file
-            file_corrector(file)
-            data = iterparse(file, events=('start', 'end'))
+            file_name = 'C:\\xml\\' + file
+            if 'Procedure' in file_name or 'Cancel' in file_name:
+                os.remove(file_name)
+                continue
+            print 'Корректировка и анализ файла: ', file_name
+            file_corrector(file_name)
+            data = iterparse(file_name, events=('start', 'end'))
             Contracts = []
             for event, elem in data:
                 if event == 'start' and elem.tag == 'contract':
-                    Contracts.append(ContractParse(data, extract_region(zip)))
+                    Contracts.append(ContractParse(data, extract_region(zip), zip, file))
             print 'Анализ файла завершен'
             print 'Количество контрактов в файле: {0}'.format(len(Contracts))
             # print extractRegion(zip)
-            #for i in range(len(Contracts)):
-            #   print 'Region: ',Contracts[i].Region, Contracts[i].Supplier.ContactInfo
-            # print Contracts[0].Customer.inn, Contracts[0].Customer.RegNum, Contracts[0].Customer.kpp, Contracts[0].Customer.FullName
             # query = "INSERT INTO T_CUSTOMER (inn, reg_num, kpp, full_name) VALUES (%(inn)s,%(reg_num)s,%(kpp)s,'%(full_name)s')" % {'inn':Contracts[0].Customer.inn, 'reg_num':Contracts[0].Customer.RegNum, 'kpp':Contracts[0].Customer.kpp, 'full_name':Contracts[0].Customer.FullName}
-            query = 'select id from t_customer;'
-            print cursor.execute(query.encode('utf-8'))
-            print dir(cursor)
-            db.commit()
-            print cursor.fetchone()
-            #os.remove(file)
-            break
-
-        break
+            # query = 'select id from t_customer;'
+            # print cursor.execute(query.encode('utf-8'))
+            # print dir(cursor)
+            # db.commit()
+            # print cursor.fetchone()[0]
+            os.remove(file_name)
+        len_zip -= len_zip
+            #break
+        #break
+    # db.close()
             # print "Корректировка файла: %s" % file
             # s1 = time.time()
             # file_corrector(file)
