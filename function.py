@@ -8,32 +8,30 @@ import re
 def databaseConnect():
     return MySQLdb.connect(charset='utf8',host="127.0.0.1",
             user="root", passwd="root", db="test")
-6
-# def file_corrector (filename):
-#     f = open(filename)
-#     text = f.read()
-#     f.close()
-#     text = text.replace("oos:", "").replace("<contract schemeVersion=\"1.0\">", "<contract>")\
-#         .replace("<contractSign>", "<contract>")\
-#         .replace("</contractSign>","</contract>")
-#
-#     text = text.replace(text.split("<contract>", 1)[0], "<export>\n")
-#     f = open(filename, 'w')
-#     f.write(text)
 
 def file_corrector (filename):
     try:
-        pattern = '<contract schemeVersion="[0-9]\.[0-9]">'
+        reg = '<contract schemeVersion="[0-9]\.[0-9]">'
         f = open(filename)
         text = f.read()
-        line = re.findall(pattern, text)[0]
         f.close()
-
         text = text.replace("oos:", "").replace("ns2:", "")\
-            .replace(line, "<contract>")
-            #.replace("<contractSign>", "<contract>")\
-            #.replace("</contractSign>","</contract>")
-
+             .replace("<contractSign>", "<contract>")\
+             .replace("</contractSign>","</contract>")
+        f = open(filename, 'w')
+        f.write(text)
+        f.close()
+        f = open(filename)
+        text = f.read()
+        f.close()
+        line = re.findall(reg, text)[0]
+        text = text.replace(line, "<contract>")
+        f = open(filename, 'w')
+        f.write(text)
+        f.close()
+        f = open(filename)
+        text = f.read()
+        f.close()
         text = text.replace(text.split("<contract>", 1)[0], "<export>\n")
         f = open(filename, 'w')
         f.write(text)
@@ -59,7 +57,7 @@ def extractDate(filename):
     date = startDate + '-' + finishDate
     return date
 
-def config_write(str):
+def log_write(str):
     f = open(u'C:\\Проекты\\xml2mysql\\contracts_log.log','a')
     f.write(str + '\n')
     f.close()
@@ -129,43 +127,43 @@ def ContractParse(data, region, zip, file):
 
         if event == 'end' and elem.tag == 'contract':
             if currContract.id == None or currContract.id == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/id'))
+                log_write(create_log_str(zip, file, region, ' contract/id'))
             if currContract.RegNum == None or currContract.RegNum == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/regNum'))
+                log_write(create_log_str(zip, file, region, ' contract/regNum'))
             if currContract.Number == None or currContract.Number == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/number'))
+                log_write(create_log_str(zip, file, region, ' contract/number'))
             if currContract.PublishDate == None or currContract.PublishDate == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/publishDate'))
+                log_write(create_log_str(zip, file, region, ' contract/publishDate'))
             if currContract.SignDate == None or currContract.SignDate == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/signDate'))
+                log_write(create_log_str(zip, file, region, ' contract/signDate'))
             if currContract.NotNumber == None or currContract.NotNumber == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/notificationNumber'))
+                log_write(create_log_str(zip, file, region, ' contract/notificationNumber'))
             if currContract.Price == None or currContract.Price == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/price'))
+                log_write(create_log_str(zip, file, region, ' contract/price'))
             #---------------------------------------------------------------
             if currContract.Customer.RegNum == None or currContract.Customer.RegNum == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/customer/regNum'))
+                log_write(create_log_str(zip, file, region, ' contract/customer/regNum'))
             if currContract.Customer.FullName == None or currContract.Customer.FullName == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/customer/fullName'))
+                log_write(create_log_str(zip, file, region, ' contract/customer/fullName'))
             if currContract.Customer.inn == None or currContract.Customer.inn == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/customer/inn'))
+                log_write(create_log_str(zip, file, region, ' contract/customer/inn'))
             if currContract.Customer.kpp == None or currContract.Customer.kpp == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/customer/kpp'))
+                log_write(create_log_str(zip, file, region, ' contract/customer/kpp'))
             #--------------------------------------------------------------
             if currContract.Supplier.inn == None or currContract.Supplier.inn == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/supplier/inn'))
+                log_write(create_log_str(zip, file, region, ' contract/supplier/inn'))
             if currContract.Supplier.kpp == None or currContract.Supplier.kpp == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/supplier/kpp'))
+                log_write(create_log_str(zip, file, region, ' contract/supplier/kpp'))
             if currContract.Supplier.OrgName == None or currContract.Supplier.OrgName == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/supplier/organizationName'))
+                log_write(create_log_str(zip, file, region, ' contract/supplier/organizationName'))
             if currContract.Supplier.CountryName == None or currContract.Supplier.CountryName == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/supplier/countryFullName'))
+                log_write(create_log_str(zip, file, region, ' contract/supplier/countryFullName'))
             if currContract.Supplier.FactAddress == None or currContract.Supplier.FactAddress == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/supplier/factualAddress'))
+                log_write(create_log_str(zip, file, region, ' contract/supplier/factualAddress'))
             if currContract.Supplier.ContactInfo == None or currContract.Supplier.ContactInfo == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/supplier/contactInfo'))
+                log_write(create_log_str(zip, file, region, ' contract/supplier/contactInfo'))
             if currContract.Supplier.ContactPhone == None or currContract.Supplier.ContactPhone == 'None':
-                config_write(create_log_str(zip, file, region, ' contract/supplier/contactPhone'))
+                log_write(create_log_str(zip, file, region, ' contract/supplier/contactPhone'))
             return currContract
 
 

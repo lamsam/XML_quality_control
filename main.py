@@ -11,8 +11,9 @@ def main():
     #print zip_dir.index("contract_Sverdlovskaja_obl_2014090100_2014100100_619.xml.zip")
     print "Начало обработки файлов из дирректории %s\n" % path
     print "=====================================================\n"
-    len_zip = len(zip_dir) - 1
+    len_zip = len(zip_dir)
     for zip in zip_dir:
+        len_zip -= 1
         print 'Осталось: ', len_zip
         zip = path + zip
         print 'Распаковка архива: ', zip
@@ -41,7 +42,7 @@ def main():
             # db.commit()
             # print cursor.fetchone()[0]
             os.remove(file_name)
-        len_zip -= len_zip
+
             #break
         #break
     # db.close()
