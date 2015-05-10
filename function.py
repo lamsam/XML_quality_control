@@ -35,7 +35,6 @@ def file_corrector (filename):
         text = text.replace(text.split("<contract>", 1)[0], "<export>\n")
         f = open(filename, 'w')
         f.write(text)
-        f.close()
     except IndexError:
         pass
 
