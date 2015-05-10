@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from lxml.etree import iterparse
 import MySQLdb
 from classes import *
 import re
@@ -12,30 +11,16 @@ def databaseConnect():
 def file_corrector (filename):
     try:
         reg = '<contract schemeVersion="[0-9]\.[0-9]">'
-        f = open(filename)
-        text = f.read()
-        f.close()
+        with open(filename, 'r') as f:
+            text = f.read()
         text = text.replace("oos:", "").replace("ns2:", "")\
              .replace("<contractSign>", "<contract>")\
              .replace("</contractSign>","</contract>")
-        f = open(filename, 'w')
-        f.write(text)
-        f.close()
-        f = open(filename)
-        text = f.read()
-        f.close()
         line = re.findall(reg, text)[0]
         text = text.replace(line, "<contract>")
-        f = open(filename, 'w')
-        f.write(text)
-        f.close()
-        f = open(filename)
-        text = f.read()
-        f.close()
         text = text.replace(text.split("<contract>", 1)[0], "<export>\n")
-        f = open(filename, 'w')
-        f.write(text)
-        f.close()
+        with open(filename, 'w') as f:
+            f.write(text)
     except IndexError:
         pass
 
@@ -103,7 +88,6 @@ def ContractParse(data, region, zip, file):
             currContract.Execution = ExecutionParse(data, region)
             continue
 
-
         if event == 'end' and elem.tag == 'price' and isPrice == True:
             currContract.Price = elem.text
             continue
@@ -113,9 +97,9 @@ def ContractParse(data, region, zip, file):
             isPrice = False
             continue
 
-        # if event == 'end' and elem.tag == 'protocolDate':
-        #     currContract.ProtocolDate = elem.text
-        #
+        if event == 'end' and elem.tag == 'protocolDate':
+            currContract.ProtocolDate = elem.text
+
 
         #
         # if event == 'start' and elem.tag == 'product':
@@ -202,7 +186,7 @@ def SupplierParse(data, region):
             currSupplier = Supplier()
             continue
 
-        if event == 'end' and elem.tag == 'inn':
+        if event == 'end' and (elem.tag == 'inn' or elem.tag == 'INN'):
             currSupplier.inn = elem.text
             continue
 
