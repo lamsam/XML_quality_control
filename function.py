@@ -43,9 +43,8 @@ def extractDate(filename):
     return date
 
 def log_write(str):
-    f = open(u'C:\\Проекты\\xml2mysql\\contracts_log.log','a')
-    f.write(str + '\n')
-    f.close()
+    with open(u'C:\\Проекты\\xml2mysql\\contracts_log.log','a') as f:
+        f.write(str + '\n')
 
 def create_log_str(zip, file, region, tag):
     str = region + '\t' + 'zip: ' + zip + '\t' + 'file: ' + file + '\t' + 'tag:' + tag
@@ -100,8 +99,6 @@ def ContractParse(data, region, zip, file):
         if event == 'end' and elem.tag == 'protocolDate':
             currContract.ProtocolDate = elem.text
 
-
-        #
         # if event == 'start' and elem.tag == 'product':
         #     currContract.Product = ProductParse(data)
 

@@ -46,23 +46,22 @@ def main():
 
             break
         break
-    # f = open(u'C:\\Проекты\\xml2mysql\\contracts_log.log')
-    # lines = f.readlines()
-    # f.close()
-    # tags = []
-    # for  i in lines:
-    #     tags.append(i.split('\t')[-1].split('tag: ')[-1])
-    # c = collections.Counter()
-    # for i in tags:
-    #     c[i] += 1
-    # f = open(u'C:\\Проекты\\xml2mysql\\contracts_log.log', 'a')
-    # f.write('\n\n\n\nИТОГ:\n')
-    # f.write('Всего отсутствует тегов: ' + str(len(tags)) + '\n')
-    # f.write('Из них:\n')
-    # for i in c:
-    #     f.write(i.rstrip() + ': ' + str(c[i]) + '\n')
-    # f.close()
-    # db.close()
+    with open(u'C:\\Проекты\\xml2mysql\\contracts_log.log') as f:
+        lines = f.readlines()
+    tags = []
+    for  i in lines:
+        tags.append(i.split('\t')[-1].split('tag: ')[-1])
+    c = collections.Counter()
+    for i in tags:
+        c[i] += 1
+    with open(u'C:\\Проекты\\xml2mysql\\contracts_log.log', 'a') as f:
+        f.write('\n\n\n\nИТОГ:\n')
+        f.write('Всего отсутствует тегов: ' + str(len(tags)) + '\n')
+        f.write('Из них:\n')
+    for i in c:
+        f.write(i.rstrip() + ': ' + str(c[i]) + '\n')
+    f.close()
+    #db.close()
             # print "Корректировка файла: %s" % file
             # s1 = time.time()
             # file_corrector(file)
