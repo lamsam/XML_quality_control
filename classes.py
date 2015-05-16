@@ -1,16 +1,16 @@
 class Contract:
     def __init__(self):
-        self.Product = Product()
+        self.Products = []
         self.Customer = Customer()
         self.Supplier = Supplier()
         self.Execution = Execution()
+        self.Currency = Currency()
         self.Price = 'None'
         self.SignDate = 'None'
         self.id = 'None'
         self.RegNum = 'None'
         self.PublishDate = 'None'
         self.Price = 'None'
-        self.CurrencyCode = 'None'
         self.Number = 'None'
         self.NotNumber = 'None'
         self.ProtocolDate = 'None'
@@ -45,3 +45,8 @@ class Execution:
     def __init__(self):
         self.Month = 'None'
         self.Year = 'None'
+
+class Currency:
+    def __init__(self):
+        self.Code = 'None'
+        self.Name = 'None'

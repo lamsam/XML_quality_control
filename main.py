@@ -35,7 +35,9 @@ def main():
                     Contracts.append(ContractParse(data, extract_region(zip), zip, file))
             print 'Анализ файла завершен'
             print 'Количество контрактов в файле: {0}'.format(len(Contracts))
-    #         # print extractRegion(zip)
+            print Contracts[0].Currency.Name
+            print Contracts[0].Currency.Code
+            # print extractRegion(zip)
             # query = "INSERT INTO T_CUSTOMER (inn, reg_num, kpp, full_name) VALUES (%(inn)s,%(reg_num)s,%(kpp)s,'%(full_name)s')" % {'inn':Contracts[0].Customer.inn, 'reg_num':Contracts[0].Customer.RegNum, 'kpp':Contracts[0].Customer.kpp, 'full_name':Contracts[0].Customer.FullName}
             # query = 'select id from t_customer;'
             # print cursor.execute(query.encode('utf-8'))
@@ -43,24 +45,24 @@ def main():
             # db.commit()
             # print cursor.fetchone()[0]
             # os.remove(file_name)
-
-            break
+            #break
+            print ';: ', os.path.curdir
         break
-    with open(u'C:\\Проекты\\xml2mysql\\contracts_log.log') as f:
-        lines = f.readlines()
-    tags = []
-    for  i in lines:
-        tags.append(i.split('\t')[-1].split('tag: ')[-1])
-    c = collections.Counter()
-    for i in tags:
-        c[i] += 1
-    with open(u'C:\\Проекты\\xml2mysql\\contracts_log.log', 'a') as f:
-        f.write('\n\n\n\nИТОГ:\n')
-        f.write('Всего отсутствует тегов: ' + str(len(tags)) + '\n')
-        f.write('Из них:\n')
-    for i in c:
-        f.write(i.rstrip() + ': ' + str(c[i]) + '\n')
-    f.close()
+    # with open(u'C:\\Проекты\\xml2mysql\\contracts_log.log') as f:
+    #     lines = f.readlines()
+    # tags = []
+    # for  i in lines:
+    #     tags.append(i.split('\t')[-1].split('tag: ')[-1])
+    # c = collections.Counter()
+    # for i in tags:
+    #     c[i] += 1
+    # with open(u'C:\\Проекты\\xml2mysql\\contracts_log.log', 'a') as f:
+    #     f.write('\n\n\n\nИТОГ:\n')
+    #     f.write('Всего отсутствует тегов: ' + str(len(tags)) + '\n')
+    #     f.write('Из них:\n')
+    # for i in c:
+    #     f.write(i.rstrip() + ': ' + str(c[i]) + '\n')
+    # f.close()
     #db.close()
             # print "Корректировка файла: %s" % file
             # s1 = time.time()
@@ -69,9 +71,6 @@ def main():
             # #print "Файл откорректирован за %.3f сек\n" % (f1 - s1)
             # print ".....................................................\n"
             # data = iterparse(file, events=('start','end'))
-            # data = iter(data)
-            #
-            # event,root = data.next()
             # Contracts = [None]
             # s2 = time.time()
             # for event,elem in data:

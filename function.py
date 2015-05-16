@@ -2,10 +2,10 @@
 import MySQLdb
 from classes import *
 import re
-
+import os
 
 def databaseConnect():
-    return MySQLdb.connect(charset='utf8',host="127.0.0.1",
+    return MySQLdb.connect(charset='utf8', host="127.0.0.1",
             user="root", passwd="root", db="test")
 
 def file_corrector (filename):
@@ -33,17 +33,17 @@ def extract_region(filename):
             break
     return region
 
-def extractDate(filename):
-    date = filename.split('_inc_')
-    date = date[1]
-    date = date.split('_000000_')
-    startDate = date[0]
-    finishDate = date[1]
-    date = startDate + '-' + finishDate
-    return date
+# def extractDate(filename):
+#     date = filename.split('_inc_')
+#     date = date[1]
+#     date = date.split('_000000_')
+#     startDate = date[0]
+#     finishDate = date[1]
+#     date = startDate + '-' + finishDate
+#     return date
 
 def log_write(str):
-    with open(u'C:\\Проекты\\xml2mysql\\contracts_log.log','a') as f:
+    with open('contracts_log.log','a') as f:
         f.write(str + '\n')
 
 def create_log_str(zip, file, region, tag):
@@ -55,58 +55,61 @@ def ContractParse(data, region, zip, file):
     currContract = Contract()
     currContract.Region = region
     for event,elem in data:
-        if event == 'end' and elem.tag == 'id':
-            currContract.id = elem.text
+        if event == 'end' and elem.tag.upper() == 'ID':
+            currContract.id = elem.text.upper()
             continue
 
-        if event == 'end' and elem.tag == 'regNum':
-            currContract.RegNum = elem.text
+        if event == 'end' and elem.tag.upper() == 'REGNUM':
+            currContract.RegNum = elem.text.upper()
             continue
 
-        if event == 'end' and elem.tag == 'number':
-            currContract.Number = elem.text
+        if event == 'end' and elem.tag.upper() == 'NUMBER':
+            currContract.Number = elem.text.upper()
             continue
 
-        if event == 'end' and elem.tag == 'publishDate':
+        if event == 'end' and elem.tag.upper() == 'PUBLISHDATE':
             currContract.PublishDate = elem.text[:10]
             continue
 
-        if event == 'end' and elem.tag == 'signDate':
+        if event == 'end' and elem.tag.upper() == 'SIGNDATE':
             currContract.SignDate = elem.text
             continue
 
-        if event == 'end' and elem.tag == 'notificationNumber':
+        if event == 'end' and elem.tag.upper() == 'NOTIFICATIONNUMBER':
             currContract.NotNumber = elem.text
             continue
 
-        if event == 'start' and elem.tag == 'customer':
+        if event == 'start' and elem.tag.upper() == 'CUSTOMER':
             currContract.Customer = CustomerParse(data, region)
             continue
 
-        if event == 'start' and elem.tag == 'execution':
+        if event == 'start' and elem.tag.upper() == 'EXECUTION':
             currContract.Execution = ExecutionParse(data, region)
             continue
 
-        if event == 'end' and elem.tag == 'price' and isPrice == True:
+        if event == 'end' and elem.tag.upper() == 'PRICE' and isPrice == True:
             currContract.Price = elem.text
             continue
 
-        if (event == 'start' and elem.tag == 'products') or \
-                (event == 'start' and elem.tag == 'finances'):
+        if event == 'end' and elem.tag.upper() == 'PROTOCOLDATE':
+            currContract.ProtocolDate = elem.text
+            continue
+
+        if event == 'start' and elem.tag.upper() == 'CURRENCY':
+            currContract.Currency = CurrencyParse(data)
             isPrice = False
             continue
 
-        if event == 'end' and elem.tag == 'protocolDate':
-            currContract.ProtocolDate = elem.text
+        if event == 'start' and elem.tag.upper() == 'PRODUCTS':
+            currContract.Product = ProductParse(data, region)
+            isPrice = False
+            continue
 
-        # if event == 'start' and elem.tag == 'product':
-        #     currContract.Product = ProductParse(data)
-
-        if event == 'start' and elem.tag == 'supplier':
+        if event == 'start' and elem.tag.upper() == 'SUPPLIER':
             currContract.Supplier = SupplierParse(data, region)
             continue
 
-        if event == 'end' and elem.tag == 'contract':
+        if event == 'end' and elem.tag.upper() == 'CONTRACT':
             if currContract.id == None or currContract.id == 'None':
                 log_write(create_log_str(zip, file, region, ' contract/id'))
             if currContract.RegNum == None or currContract.RegNum == 'None':
@@ -152,74 +155,73 @@ def ContractParse(data, region, zip, file):
 def CustomerParse(data, region):
     currCustomer = Customer()
     for event,elem in data:
-        if event == 'start' and elem.tag == 'customer':
+        if event == 'start' and elem.tag.upper() == 'CUSTOMER':
             currCustomer = Customer()
             continue
 
-        if event == 'end' and elem.tag == 'regNum':
+        if event == 'end' and elem.tag.upper() == 'REGNUM':
             currCustomer.RegNum = elem.text
             continue
 
-        if event == 'end' and elem.tag == 'fullName':
+        if event == 'end' and elem.tag == 'FULLNAME':
             currCustomer.FullName = elem.text
             continue
 
-        if event == 'end' and elem.tag == 'inn':
+        if event == 'end' and elem.tag.upper() == 'INN':
             currCustomer.inn = elem.text
             continue
 
-
-        if event == 'end' and elem.tag == 'kpp':
+        if event == 'end' and elem.tag.upper() == 'KPP':
             currCustomer.kpp = elem.text
             continue
 
-        if event == 'end' and elem.tag == 'customer':
+        if event == 'end' and elem.tag.upper() == 'CUSTOMER':
             return currCustomer
 
 def SupplierParse(data, region):
     currSupplier = Supplier()
     for event,elem in data:
-        if event == 'start' and elem.tag == 'supplier':
+        if event == 'start' and elem.tag.upper() == 'SUPPLIER':
             currSupplier = Supplier()
             continue
 
-        if event == 'end' and (elem.tag == 'inn' or elem.tag == 'INN'):
+        if event == 'end' and elem.tag.upper() == 'INN':
             currSupplier.inn = elem.text
             continue
 
-        if event == 'end' and elem.tag == 'kpp':
+        if event == 'end' and elem.tag.upper() == 'KPP':
             currSupplier.kpp = elem.text
             continue
 
-        if event == 'end' and elem.tag == 'organizationName':
+        if event == 'end' and (elem.tag.upper() == 'ORGANIZATIONNAME' or elem.tag.upper() == 'FULLNAME'):
             currSupplier.OrgName = elem.text
             continue
 
-        if event == 'end' and elem.tag == 'countryFullName':
+        if event == 'end' and elem.tag.upper() == 'COUNTRYFULLNAME':
             currSupplier.CountryName = elem.text
             continue
 
-        if event == 'end' and elem.tag == 'factualAddress':
+        if event == 'end' and (elem.tag.upper() == 'FACTUALADDRESS' or elem.tag.upper() == 'ADDRESS'):
             currSupplier.FactAddress = elem.text.replace("\\","\\\\")
             continue
 
-        if event == 'end' and elem.tag == 'lastName':
+        if event == 'end' and elem.tag.upper() == 'LASTNAME':
             currSupplier.ContactInfo = elem.text + ' '
             continue
 
-        if event == 'end' and elem.tag == 'firstName':
+        if event == 'end' and elem.tag.upper() == 'FIRSTNAME':
             currSupplier.ContactInfo = currSupplier.ContactInfo + elem.text + " "
             continue
 
-        if event == 'end' and elem.tag == 'middleName':
+        if event == 'end' and elem.tag.upper() == 'MIDDLENAME':
             currSupplier.ContactInfo = currSupplier.ContactInfo + elem.text
             continue
 
-        if event == 'end' and elem.tag == 'contactPhone':
+        if event == 'end' and elem.tag.upper() == 'CONTACTPHONE':
             currSupplier.ContactPhone = elem.text
             continue
 
-        if event == 'end' and elem.tag == 'supplier':
+        if event == 'end' and elem.tag.upper() == 'SUPPLIER':
             return currSupplier
 
 def ProductParse(data, region):
@@ -250,7 +252,7 @@ def ProductParse(data, region):
 
 def ExecutionParse(data, region):
     currExecution = Execution()
-    for event,elem in data:
+    for event, elem in data:
         if event == 'end' and elem.tag == 'month':
             currExecution.Month = elem.text
             continue
@@ -261,3 +263,15 @@ def ExecutionParse(data, region):
 
         if event == 'end' and elem.tag == 'execution':
             return currExecution
+
+def CurrencyParse(data):
+    currCurrency = Currency()
+    for event, elem in data:
+        if event == 'end' and elem.tag.upper() == 'CODE':
+            currCurrency.Code = elem.text
+            continue
+        if event == 'end' and elem.tag.upper() == 'NAME':
+            currCurrency.Name = elem.text
+            continue
+        if event == 'end' and elem.tag.upper() == 'CURRENCY':
+            return currCurrency
