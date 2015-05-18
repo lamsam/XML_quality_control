@@ -61,8 +61,6 @@ def main():
         f.write('Отсутствует значения в тегах:')
         for i in dict(c_for_no_value):
             f.write(i + ': ' + str(c_for_no_value[i]) + '\n')
-    print dict(c_for_no_tag)
-
 
 
     # with open(u'C:\\Проекты\\xml2mysql\\contracts_log.log') as f:
