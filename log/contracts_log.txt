@@ -1,0 +1,11 @@
+Отсутствует тегов:
+contract/notificationNumber: 2
+contract/regNum: 1
+contract/customer/fullName: 2
+contract/number: 2
+contract/supplier/organizationName: 1
+contract/id: 1
+contract/supplier/kpp: 1
+contract/supplier/countryFullName: 1
+Отсутствует значения в тегах:contract/customer/kpp: 1
+contract/supplier/organizationName: 1
