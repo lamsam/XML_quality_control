@@ -67,6 +67,7 @@ def ContractParse(data, region, zip, file):
 
         if event == 'start' and elem.tag.upper() == 'PLACER':
             isRegNum = False
+            continue
 
         if event == 'end' and elem.tag.upper() == 'REGNUM' and isRegNum == True:
             currContract.RegNum = elem.text
@@ -168,7 +169,7 @@ def ContractParse(data, region, zip, file):
             if currContract.Customer.FullName == None:
                 log_no_value.append('contract/customer/fullName')
             elif currContract.Customer.FullName == 'None':
-                log_no_tag('contract/customer/fullName')
+                log_no_tag.append('contract/customer/fullName')
 
             if currContract.Customer.inn == None:
                 log_no_value.append('contract/customer/inn')
@@ -228,11 +229,6 @@ def ContractParse(data, region, zip, file):
                 log_no_tag.append('contract/currency/name')
 
             return currContract
-
-ContractParse.log_no_value = list() #None
-ContractParse.log_no_tag = list() #'None'
-
-
 
 def CustomerParse(data, region):
     currCustomer = Customer()
