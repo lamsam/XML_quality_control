@@ -35,7 +35,6 @@ def main():
                     Contracts.append(ContractParse(data, extract_region(zip), zip, file))
             print 'Анализ файла завершен'
             print 'Количество контрактов в файле: {0}'.format(len(Contracts))
-            print log_no_tag, log_no_value
 
             # print extractRegion(zip)
             # query = "INSERT INTO T_CUSTOMER (inn, reg_num, kpp, full_name) VALUES (%(inn)s,%(reg_num)s,%(kpp)s,'%(full_name)s')" % {'inn':Contracts[0].Customer.inn, 'reg_num':Contracts[0].Customer.RegNum, 'kpp':Contracts[0].Customer.kpp, 'full_name':Contracts[0].Customer.FullName}
@@ -54,13 +53,14 @@ def main():
     c_for_no_tag = collections.Counter()
     for i in log_no_tag:
         c_for_no_tag[i] += 1
-    with open('contracts_log.txt', 'w') as f:
-        f.write('Отсутствует тегов:\n')
+    with open('..\\log\\contracts_log.txt', 'w') as f:
+        f.write('Всего ошибок: {0}\n'.format(str(len(log_no_tag) + len(log_no_value))))
+        f.write('Отсутствует тегов: {0}\n'.format(str(len(log_no_tag))))
         for i in dict(c_for_no_tag):
-            f.write(i + ': ' + str(c_for_no_tag[i]) + '\n')
-        f.write('Отсутствует значения в тегах:')
+            f.write('\t' + i + ': ' + str(c_for_no_tag[i]) + '\n')
+        f.write('\nОтсутствует значений в тегах: {0}\n'.format(str(len(log_no_value))))
         for i in dict(c_for_no_value):
-            f.write(i + ': ' + str(c_for_no_value[i]) + '\n')
+            f.write('\t' + i + ': ' + str(c_for_no_value[i]) + '\n')
 
 
     # with open(u'C:\\Проекты\\xml2mysql\\contracts_log.log') as f:
