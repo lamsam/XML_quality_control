@@ -1,11 +1,30 @@
 # -*- coding: utf-8 -*-
-import MySQLdb
 from classes import *
 import re
+import collections
+import os
+from ftplib import FTP
 
-def databaseConnect():
-    return MySQLdb.connect(charset='utf8', host="127.0.0.1",
-            user="root", passwd="root", db="test")
+def ftp_download(region):
+    ftp = FTP('ftp.zakupki.gov.ru', 'free', 'free')
+    ftp.cwd('fcs_regions')
+    listing = list()
+    try:
+        os.mkdir('../contracts')
+    except Exception:
+        print 'dir ../contracts is already exist'
+    ftp.cwd(region)
+    ftp.cwd('contracts')
+    ftp.retrlines("LIST", listing.append)
+    for i in listing:
+        if 'zip' in i:
+            file_name = i.split()[-1]
+            local_file_name =  '..//contracts//' + file_name
+            lf = open(local_file_name, "wb")
+            ftp.retrbinary("RETR " + file_name, lf.write, 8*1024)
+            lf.close()
+
+
 
 def file_corrector (filename):
     try:
@@ -23,6 +42,23 @@ def file_corrector (filename):
     except IndexError:
         pass
 
+def write_in_log(log_no_value, log_no_tag):
+    c_for_no_value = collections.Counter()
+    for i in log_no_value:
+        c_for_no_value[i] += 1
+
+    c_for_no_tag = collections.Counter()
+    for i in log_no_tag:
+        c_for_no_tag[i] += 1
+    with open('..\\log\\contracts_log.txt', 'w') as f:
+        f.write('Всего ошибок: {0}\n'.format(str(len(log_no_tag) + len(log_no_value))))
+        f.write('Отсутствует тегов: {0}\n'.format(str(len(log_no_tag))))
+        for i in dict(c_for_no_tag):
+            f.write('\t' + i + ': ' + str(c_for_no_tag[i]) + '\n')
+        f.write('\nОтсутствует значений в тегах: {0}\n'.format(str(len(log_no_value))))
+        for i in dict(c_for_no_value):
+            f.write('\t' + i + ': ' + str(c_for_no_value[i]) + '\n')
+    return 0
 
 def extract_region(filename):
     region = filename.split('contract_')[1]

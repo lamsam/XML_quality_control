@@ -3,11 +3,15 @@ import os
 from function import *
 from lxml.etree import iterparse
 from pyunpack import Archive
-import collections
+
+def contract_to_mysql(contracts, cursor):
+    pass
+
+def supplier_to_mysql(contracts, cursor):
+    pass
+
 
 def main():
-    # #db = databaseConnect()
-    # #cursor = db.cursor()
     path = 'C:\\test\\'
     zip_dir = os.listdir(path)
     print "Начало обработки файлов из дирректории %s\n" % path
@@ -19,7 +23,7 @@ def main():
         zip = path + zip
         print 'Распаковка архива: ', zip
         #Archive(zip).extractall('C:\\xml\\')
-        print 'Архив распакован в папку ', 'C:\\xml\\'
+        print 'Архив распакован в папку {0}\n'.format('C:\\xml\\')
         xml_dir = os.listdir('C:\\xml\\')
         for file in xml_dir:
             file_name = 'C:\\xml\\' + file
@@ -34,10 +38,8 @@ def main():
                 if event == 'start' and elem.tag == 'contract':
                     Contracts.append(ContractParse(data, extract_region(zip), zip, file))
             print 'Анализ файла завершен'
-            print 'Количество контрактов в файле: {0}'.format(len(Contracts))
 
-            # print extractRegion(zip)
-            # query = "INSERT INTO T_CUSTOMER (inn, reg_num, kpp, full_name) VALUES (%(inn)s,%(reg_num)s,%(kpp)s,'%(full_name)s')" % {'inn':Contracts[0].Customer.inn, 'reg_num':Contracts[0].Customer.RegNum, 'kpp':Contracts[0].Customer.kpp, 'full_name':Contracts[0].Customer.FullName}
+            #query = "INSERT INTO T_CUSTOMER (inn, reg_num, kpp, full_name) VALUES (%(inn)s,%(reg_num)s,%(kpp)s,'%(full_name)s')" % {'inn':Contracts[0].Customer.inn, 'reg_num':Contracts[0].Customer.RegNum, 'kpp':Contracts[0].Customer.kpp, 'full_name':Contracts[0].Customer.FullName}
             # query = 'select id from t_customer;'
             # print cursor.execute(query.encode('utf-8'))
             # print dir(cursor)
@@ -46,37 +48,10 @@ def main():
             # os.remove(file_name)
 
         break
-    c_for_no_value = collections.Counter()
-    for i in log_no_value:
-        c_for_no_value[i] += 1
-
-    c_for_no_tag = collections.Counter()
-    for i in log_no_tag:
-        c_for_no_tag[i] += 1
-    with open('..\\log\\contracts_log.txt', 'w') as f:
-        f.write('Всего ошибок: {0}\n'.format(str(len(log_no_tag) + len(log_no_value))))
-        f.write('Отсутствует тегов: {0}\n'.format(str(len(log_no_tag))))
-        for i in dict(c_for_no_tag):
-            f.write('\t' + i + ': ' + str(c_for_no_tag[i]) + '\n')
-        f.write('\nОтсутствует значений в тегах: {0}\n'.format(str(len(log_no_value))))
-        for i in dict(c_for_no_value):
-            f.write('\t' + i + ': ' + str(c_for_no_value[i]) + '\n')
+    write_in_log(log_no_value, log_no_tag)
 
 
-    # with open(u'C:\\Проекты\\xml2mysql\\contracts_log.log') as f:
-    #     lines = f.readlines()
-    # tags = []
-    # for  i in lines:
-    #     tags.append(i.split('\t')[-1].split('tag: ')[-1])
-    # c = collections.Counter()
-    # for i in tags:
-    #     c[i] += 1
-    # with open(u'C:\\Проекты\\xml2mysql\\contracts_log.log', 'a') as f:
-    #     f.write('\n\n\n\nИТОГ:\n')
-    #     f.write('Всего отсутствует тегов: ' + str(len(tags)) + '\n')
-    #     f.write('Из них:\n')
-    # for i in c:
-    #     f.write(i.rstrip() + ': ' + str(c[i]) + '\n')
+
     # f.close()
     #db.close()
             # print "Корректировка файла: %s" % file
