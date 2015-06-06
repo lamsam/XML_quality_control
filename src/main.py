@@ -4,29 +4,31 @@ from function import *
 from lxml.etree import iterparse
 from pyunpack import Archive
 
-def contract_to_mysql(contracts, cursor):
-    pass
-
-def supplier_to_mysql(contracts, cursor):
-    pass
-
-
+count_contract = 0
 def main():
-    path = 'C:\\test\\'
+    region = 'Moskva'
+    global count_contract
+    try:
+        os.mkdir('zip')
+        os.mkdir('xml')
+    except:
+        pass
+    path = 'zip'
+    print 'Загрузка данных по региону: ', region
+    ftp_download(region, os.path.abspath('zip'))
     zip_dir = os.listdir(path)
     print "Начало обработки файлов из дирректории %s\n" % path
     print "=====================================================\n"
     len_zip = len(zip_dir)
     for zip in zip_dir:
-        len_zip -= 1
-        print 'Осталось: ', len_zip
-        zip = path + zip
+        print 'Осталось: ', len_zip, ' архивов'
+        zip = os.path.abspath('zip') + '\\' + zip
         print 'Распаковка архива: ', zip
-        #Archive(zip).extractall('C:\\xml\\')
-        print 'Архив распакован в папку {0}\n'.format('C:\\xml\\')
-        xml_dir = os.listdir('C:\\xml\\')
+        Archive(zip).extractall('xml')
+        print 'Архив распакован в папку {0}\n'.format('xml')
+        xml_dir = os.listdir('xml')
         for file in xml_dir:
-            file_name = 'C:\\xml\\' + file
+            file_name = os.path.abspath('xml')+ '\\' + file
             if 'Procedure' in file_name or 'Cancel' in file_name:
                 os.remove(file_name)
                 continue
@@ -37,43 +39,13 @@ def main():
             for event, elem in data:
                 if event == 'start' and elem.tag == 'contract':
                     Contracts.append(ContractParse(data, extract_region(zip), zip, file))
+            count_contract += len(Contracts)
             print 'Анализ файла завершен'
-
-            #query = "INSERT INTO T_CUSTOMER (inn, reg_num, kpp, full_name) VALUES (%(inn)s,%(reg_num)s,%(kpp)s,'%(full_name)s')" % {'inn':Contracts[0].Customer.inn, 'reg_num':Contracts[0].Customer.RegNum, 'kpp':Contracts[0].Customer.kpp, 'full_name':Contracts[0].Customer.FullName}
-            # query = 'select id from t_customer;'
-            # print cursor.execute(query.encode('utf-8'))
-            # print dir(cursor)
-            # db.commit()
-            # print cursor.fetchone()[0]
-            # os.remove(file_name)
-
-        break
-    write_in_log(log_no_value, log_no_tag)
-
-
-
-    # f.close()
-    #db.close()
-            # print "Корректировка файла: %s" % file
-            # s1 = time.time()
-            # file_corrector(file)
-            # f1 = time.time()
-            # #print "Файл откорректирован за %.3f сек\n" % (f1 - s1)
-            # print ".....................................................\n"
-            # data = iterparse(file, events=('start','end'))
-            # Contracts = [None]
-            # s2 = time.time()
-            # for event,elem in data:
-            #     if event == 'start' and elem.tag  == "contract":
-            #         Contracts.append(ContractParse(data))
-            # f2 = time.time()
-            # print "Данные успешно извлечены за %.3f сек" % (f2-s2)
-            # numOfContract = len(Contracts)-1
-            # print "Количество контрактов в файле:", numOfContract
-            #
-            # print "Начало загрузки данных в графовую базу"
-            # print "\nФайл успешно обработан\n"
-            # break
+            #os.remove(file_name)
+        len_zip -= 1
+        #os.remove(zip)
+    print "Проверено контрактов: ", count_contract
+    write_in_log(region, count_contract, log_no_value, log_no_tag, log_error_in_value)
 
 if __name__ == '__main__':
     main()
