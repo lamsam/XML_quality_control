@@ -4,24 +4,73 @@ from re import findall
 from collections import Counter
 from os import mkdir, listdir
 import os
+import logging
 from ftplib import FTP
+import multiprocessing
 
 
+LOG_PATH = './logs/'
 
-def ftp_download(region, local_path):
+class CustomStreamHandler(logging.StreamHandler):
+    def emit(self, record):
+        msg = record.msg.decode('utf-8', errors='replace')
+        logging.StreamHandler.emit(self, record)
+
+def create_logger(logger_name):
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(fmt=u'%(processName)s # %(levelname)s [%(asctime)s]  %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+    
+    stream_handler = CustomStreamHandler()
+    stream_handler.setLevel(logging.DEBUG)
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
+
+    if not os.path.exists(LOG_PATH):
+        os.makedirs(LOG_PATH)
+    file_handler = logging.FileHandler(LOG_PATH + 'main.log', 'a', 'utf8', 0)
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    return logger
+
+log = create_logger('Function')
+
+def get_contract_files(region):
     ftp = FTP('ftp.zakupki.gov.ru', 'free', 'free')
     ftp.cwd('fcs_regions')
     listing = list()
     ftp.cwd(region)
     ftp.cwd('contracts')
     ftp.retrlines("LIST", listing.append)
-    for i in listing:
-        if 'zip' in i:
-            file_name = i.split()[-1]
-            local_file_name =  local_path + '\\' + file_name
+    return listing
+
+def download(args):
+    name, region, local_path = args
+    ftp = FTP('ftp.zakupki.gov.ru', 'free', 'free')
+    ftp.cwd('fcs_regions')
+    ftp.cwd(region)
+    ftp.cwd('contracts')
+    if 'zip' in name:
+        file_name = name.split()[-1]
+        local_file_name =  os.path.join(local_path, file_name)
+        if os.path.isfile(local_file_name):
+            log.debug('File already exist: %s...' % file_name)
+        else:
+            log.debug('Download file: %s...' % file_name)
             lf = open(local_file_name, "wb")
             ftp.retrbinary("RETR " + file_name, lf.write, 8*1024)
             lf.close()
+            log.debug('File downloaded successfully: %s...' % file_name)
+
+
+def ftp_download(region, local_path):
+    file_list = get_contract_files(region)
+    file_list = filter(lambda x: 'Procedure' not in x, file_list)
+    file_list = filter(lambda x: 'Cancel' not in x, file_list)
+    arg_list = map(lambda x: (x, region, local_path), file_list)
+    pool = multiprocessing.Pool(multiprocessing.cpu_count() * 2)
+    pool.map(download, arg_list)
 
 def log_write(str, region):
     with open(region + '_log.txt','a') as f:
@@ -75,8 +124,8 @@ def write_in_log(region,count_contract,log_no_value, log_no_tag, log_error_in_va
             f.write('\t' + i + ': ' + str(c_for_error_in_value[i]) + '\n')
 
 
-def extract_region(filename):
-    region = filename.split('contract_')[1]
+def extract_region(file_name):
+    region = file_name.split('contract_')[1]
     for i in region:
         if i.isdigit():
             region = region[:region.index(i) - 1]
